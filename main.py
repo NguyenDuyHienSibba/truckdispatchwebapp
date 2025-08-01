@@ -5,6 +5,7 @@ import pandas as pd
 from gtts import gTTS
 import io
 import re
+# python -m streamlit run main.py
 
 # === Cấu hình layout ===
 st.set_page_config(layout="wide")
@@ -13,12 +14,12 @@ st.title("📋 TRUCK DISPATCH WEB APP")
 # === 1. Khởi tạo client (cache lâu dài) ===
 @st.cache_resource
 def get_gspread_client():
-    creds_path = r"C:\Python file\TruckDispatchWebApp\voice-auto-466706-30e4231deb9f.json"
+    info = st.secrets["gcp_service_account"]
     scope = [
         "https://www.googleapis.com/auth/spreadsheets",
         "https://www.googleapis.com/auth/drive"
     ]
-    creds = Credentials.from_service_account_file(creds_path, scopes=scope)
+    creds = Credentials.from_service_account_file(info, scopes=scope)
     return gspread.authorize(creds)
 
 # === 2. Tải dữ liệu Google Sheet với tùy chọn "refresh" ===
