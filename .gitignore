@@ -1,0 +1,19 @@
+# 🚫 Bỏ qua file JSON chứa thông tin bảo mật
+*.json
+
+# 🚫 Bỏ qua file secrets dùng cho Streamlit Cloud
+.streamlit/secrets.toml
+
+# 🚫 Bỏ qua môi trường ảo (nếu có tạo venv)
+venv/
+
+# 🚫 Bỏ qua cache của Python
+__pycache__/
+*.py[cod]
+
+# 🚫 Bỏ qua file hệ thống của macOS hoặc editor
+.DS_Store
+.vscode/
+
+# 🚫 Bỏ qua file log
+*.log
