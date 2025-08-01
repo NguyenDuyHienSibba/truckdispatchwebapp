@@ -50,7 +50,7 @@ else:
     df = load_data_cached()
 
 # === 4. Danh sách kho cố định ===
-kho_options = ['D', 'E', 'F', 'G']
+kho_options = ['Kho D','Kho D, kế kho E','Kho E, kế kho D', 'Kho E, kế kho F', 'Kho F, kế kho E', 'Kho F, kế kho G', 'G']
 
 # === 5. Khởi tạo session_state ===
 st.session_state.setdefault('page', 0)
@@ -103,8 +103,8 @@ for idx, row in df_page.iterrows():
         spoken_digits = ', '.join(digits)  # chèn dấu phẩy giữa từng số
 
 
-        spoken_text = f"Mời xe {spoken_digits} vào kho {selected}. Xin nhắc lại, mời xe {spoken_digits} vào kho {selected}."
-        written_text = f"Mời xe {bien_so} vào kho {selected}. Xin nhắc lại, mời xe {bien_so} vào kho {selected}."
+        spoken_text = f"Mời xe {spoken_digits}, vào {selected}. Xin nhắc lại, mời xe {spoken_digits}, vào {selected}."
+        written_text = f"Mời xe {bien_so} vào {selected}. Xin nhắc lại, mời xe {bien_so} vào {selected}."
         st.markdown("#### 🔊 Đang phát thông báo")
         st.success(f"📢 {written_text}")
 
