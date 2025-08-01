@@ -14,12 +14,12 @@ st.title("📋 TRUCK DISPATCH WEB APP")
 # === 1. Khởi tạo client (cache lâu dài) ===
 @st.cache_resource
 def get_gspread_client():
-    info = st.secrets["gcp_service_account"]
     scope = [
         "https://www.googleapis.com/auth/spreadsheets",
         "https://www.googleapis.com/auth/drive"
     ]
-    creds = Credentials.from_service_account_file(info, scopes=scope)
+    creds_dict = st.secrets["gcp_service_account"]
+    creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
     return gspread.authorize(creds)
 
 # === 2. Tải dữ liệu Google Sheet với tùy chọn "refresh" ===
