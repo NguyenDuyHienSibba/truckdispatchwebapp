@@ -49,15 +49,52 @@ if refresh:
 else:
     df = load_data_cached()
 
-# === 4. Danh sách kho cố định ===
+# === 4. Tính năng phát thông báo nhanh ===
+mau_thong_bao = [
+    "Yêu cầu tài xế di chuyển vào khu vực chờ, giữ khoảng cách an toàn với xe nâng. ",
+    "Mời xe di chuyển nhanh chóng vào kho. "
+]
+
+st.subheader("📢 Phát thông báo nhanh")
+
+col1, col2 = st.columns([3, 1])
+
+with col1:
+    thong_bao_chon = st.selectbox(
+        "Chọn mẫu thông báo:",
+        options=["-- Nhập tay --"] + mau_thong_bao
+    )
+    if thong_bao_chon == "-- Nhập tay --":
+        thong_bao_text = st.text_input("Nhập nội dung thông báo")
+    else:
+        thong_bao_text = thong_bao_chon
+
+with col2:
+    so_lan_phat = st.number_input("Số lần lặp", min_value=1, max_value=10, value=3)
+
+if st.button("🔊 Phát thông báo nhanh"):
+    if thong_bao_text.strip():
+        thong_bao_gop = (". "*3).join([thong_bao_text] * so_lan_phat)
+        tts = gTTS(text=thong_bao_gop, lang='vi')
+        buf = io.BytesIO()
+        tts.write_to_fp(buf)
+        buf.seek(0)
+        st.audio(buf, format='audio/mp3', autoplay=True)
+        st.success(f"📢 {thong_bao_gop}")
+    else:
+        st.warning("Vui lòng chọn hoặc nhập nội dung thông báo!")
+
+st.markdown("---")
+
+# === 5. Danh sách kho cố định ===
 kho_options = ['Kho D','Kho D, kế kho E','Kho E, kế kho D', 'Kho E, kế kho F', 'Kho F, kế kho E', 'Kho F, kế kho G', 'G']
 
-# === 5. Khởi tạo session_state ===
+# === 6. Khởi tạo session_state ===
 st.session_state.setdefault('page', 0)
 st.session_state.setdefault('selected_row', None)
 st.session_state.setdefault('selected_kho', None)
 
-# === 6. Pagination ===
+# === 7. Pagination ===
 rows_per_page = 10
 total_pages = (len(df) + rows_per_page - 1) // rows_per_page
 
@@ -74,9 +111,11 @@ st.caption(f"Page {st.session_state.page + 1} / {total_pages}")
 start = st.session_state.page * rows_per_page
 df_page = df.iloc[start: start + rows_per_page]
 
-# === 7. Hiển thị danh sách và phát âm thanh tại chỗ ===
-for idx, row in df_page.iterrows():
-    actual_idx = start + idx
+# === 8. Hiển thị danh sách và phát âm thanh tại chỗ ===
+for i, (idx, row) in enumerate(df_page.iterrows()):
+    actual_idx = start + i
+    row_key = re.sub(r'\W+', '_', str(row['Biển Số Xe']))
+
     c1, c2, c3 = st.columns([3, 3, 1])
 
     with c1:
@@ -86,10 +125,10 @@ for idx, row in df_page.iterrows():
             "Kho",
             kho_options,
             index=kho_options.index(row.get('Kho')) if row.get('Kho') in kho_options else 0,
-            key=f"kho_{actual_idx}"
+            key=f"kho_{actual_idx}_{row_key}"
         )
     with c3:
-        if st.button("🔊 Play", key=f"play_{actual_idx}"):
+        if st.button("🔊 Play", key=f"play_{actual_idx}_{row_key}"):
             st.session_state.selected_row = actual_idx
             st.session_state.selected_kho = selected
 
@@ -98,12 +137,11 @@ for idx, row in df_page.iterrows():
         st.session_state.selected_kho == selected
     ):
         bien_so = str(row['Biển Số Xe'])
-        five_digits = bien_so[-5:]  # lấy 5 ký tự cuối
-        digits = ''.join(re.findall(r'\d', five_digits))  # giữ lại các chữ số
-        spoken_digits = ', '.join(digits)  # chèn dấu phẩy giữa từng số
+        five_digits = bien_so[-5:]
+        digits = ''.join(re.findall(r'\d', five_digits))
+        spoken_digits = ' '.join(digits)
 
-
-        spoken_text = f"Mời xe {spoken_digits}, vào {selected}. Xin nhắc lại, mời xe {spoken_digits}, vào {selected}."
+        spoken_text = f"Mời xe {spoken_digits} vào {selected}. Xin nhắc lại, mời xe {spoken_digits} vào {selected}."
         written_text = f"Mời xe {bien_so} vào {selected}. Xin nhắc lại, mời xe {bien_so} vào {selected}."
         st.markdown("#### 🔊 Đang phát thông báo")
         st.success(f"📢 {written_text}")
@@ -114,7 +152,6 @@ for idx, row in df_page.iterrows():
         buf.seek(0)
         st.audio(buf, format='audio/mp3', autoplay=True)
 
-
-        if st.button("Đóng thông báo", key=f"close_{actual_idx}"):
+        if st.button("Đóng thông báo", key=f"close_{actual_idx}_{row_key}"):
             st.session_state.selected_row = None
             st.session_state.selected_kho = None
