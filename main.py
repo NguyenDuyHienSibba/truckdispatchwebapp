@@ -9,7 +9,7 @@ import re
 
 # === Cấu hình layout ===
 st.set_page_config(layout="wide")
-st.title("📋 TRUCK DISPATCH WEB APP")
+st.title("📋 TRUCK COORDINATING WEB APP")
 
 # === 1. Khởi tạo client (cache lâu dài) ===
 @st.cache_resource
